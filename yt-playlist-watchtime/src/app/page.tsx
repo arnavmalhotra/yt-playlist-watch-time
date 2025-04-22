@@ -111,18 +111,36 @@ export default function Home() {
     setError(null);
     setResults(null);
 
-    // Basic URL validation (can be improved)
-    if (!playlistUrl.includes("youtube.com/playlist?list=")) {
-      setError("Invalid YouTube Playlist URL format. Please include 'youtube.com/playlist?list='.");
+    let playlistId = null;
+    let processedUrl = playlistUrl;
+    try {
+      const url = new URL(playlistUrl);
+      if (url.hostname.includes('youtube.com') || url.hostname.includes('youtu.be')) {
+        playlistId = url.searchParams.get('list');
+      }
+    } catch (e) {
+      // Invalid URL format, but might contain a playlist ID anyway for partial URLs
+      // Try a simple regex match as a fallback
+      const match = playlistUrl.match(/[?&]list=([a-zA-Z0-9_-]+)/);
+      if (match) {
+        playlistId = match[1];
+      }
+    }
+
+    if (!playlistId) {
+      setError("Invalid YouTube URL. Please provide a valid YouTube playlist URL or a video URL that includes a 'list=' parameter.");
       setLoading(false);
       return;
     }
+
+    // Construct the canonical playlist URL
+    const canonicalUrl = `https://www.youtube.com/playlist?list=${playlistId}`;
 
     try {
       const response = await fetch('/api/playlist-info', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ playlistUrl }),
+        body: JSON.stringify({ playlistUrl: canonicalUrl }),
       });
 
       const data = await response.json();
