@@ -5,7 +5,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "YouTube Playlist Watch Time Calculator",
+  title: "YouTube Playlist Analyzer",
   description: "Calculate the total watch time, video count, and average video duration for any YouTube playlist.",
   // You can add more metadata here like icons, open graph tags etc.
   // icons: {
